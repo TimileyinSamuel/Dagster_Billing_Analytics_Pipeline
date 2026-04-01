@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+.venv/
+
+# Dagster
+.dagster/
+.tmp_dagster_home*
+
+# Data files
+data/
+*.duckdb
+
+# OS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
