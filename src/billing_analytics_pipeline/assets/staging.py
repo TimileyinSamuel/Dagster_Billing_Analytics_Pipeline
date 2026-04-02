@@ -1,6 +1,5 @@
 import dagster as dg
 from billing_analytics_pipeline.resources.duckdb_resource import DuckDBResource
-import pandas as pd
 
 @dg.asset
 def stg_accounts(duckdb: DuckDBResource) -> None:
@@ -63,7 +62,7 @@ def stg_memberships(duckdb: DuckDBResource) -> None:
 @dg.asset
 def stg_rests(duckdb: DuckDBResource) -> None:
     query = """
-    create or replace table stg_assets as
+    create or replace table stg_rests as
     select
     cast(id as varchar) as rest_id,
     cast(user_contract_id as varchar) as user_contract_id,
