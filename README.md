@@ -177,7 +177,7 @@ These models:
 - ensure consistent grain for reporting  
 
 
-![alt text](<Screenshot 2026-04-06 at 17.43.44.png>)
+![alt text](DAG_Image.png)
 
 ---
 
