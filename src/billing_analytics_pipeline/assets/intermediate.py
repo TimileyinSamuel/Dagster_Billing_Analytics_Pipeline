@@ -90,7 +90,7 @@ def int_employee_activity_weekly(duckdb: DuckDBResource) -> None:
         week_start,
         count(*) as active_days_in_week,
         1 as had_activity_in_week
-    from {{ ref('int_employee_activity_daily') }}
+    from int_employee_activity_daily
     group by user_contract_id, account_id, week_start
 
 )

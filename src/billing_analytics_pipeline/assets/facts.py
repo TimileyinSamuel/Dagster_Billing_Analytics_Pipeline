@@ -15,7 +15,7 @@ def fct_location_revenue_weekly(duckdb: DuckDBResource) -> None:
         billable_employee_count,
         location_size,
         is_billable_location
-    from {{ ref('int_location_metrics_weekly') }}
+    from int_location_metrics_weekly
 
 ),
 
