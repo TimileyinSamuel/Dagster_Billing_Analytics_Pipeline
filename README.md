@@ -119,7 +119,7 @@ billing_analytics_pipeline/
 │   ├── definitions.py
 ├── tests/
 ├── load_raw_csvs.py
-
+```
 
 ## 🔄 Data Modeling Approach
 
@@ -177,7 +177,7 @@ These models:
 - ensure consistent grain for reporting  
 
 
-![alt text](DAG_Image.png)
+![alt text](images/DAG_Image.png)
 
 ---
 
@@ -276,3 +276,4 @@ python load_raw_csvs.py
 
 # Start Dagster
 dagster dev
+```
