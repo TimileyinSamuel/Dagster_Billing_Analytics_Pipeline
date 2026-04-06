@@ -176,9 +176,7 @@ These models:
 - aggregate metrics to the account level  
 - ensure consistent grain for reporting  
 
-
-![alt text](images/DAG_Image.png)
-
+![alt text](src/billing_analytics_pipeline/images/DAG_Image.png)
 ---
 
 ## ⚙️ Orchestration with Dagster
