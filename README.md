@@ -176,6 +176,9 @@ These models:
 - aggregate metrics to the account level  
 - ensure consistent grain for reporting  
 
+
+![alt text](<Screenshot 2026-04-06 at 17.43.44.png>)
+
 ---
 
 ## ⚙️ Orchestration with Dagster
@@ -185,6 +188,8 @@ This project uses Dagster’s **asset-based architecture**:
 - Each transformation is defined as an **asset**
 - Dependencies form a clear DAG
 - Assets can be materialized independently or as part of the full pipeline
+- Assets are grouped to ensure proper categorization and group materializations
+- Assets are scheduled to materialize 2am from Monday to Friday in accordance with business needs
 
 ### Key Benefits
 
