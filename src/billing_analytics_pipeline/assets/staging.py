@@ -2,7 +2,7 @@ import dagster as dg
 from billing_analytics_pipeline.resources.duckdb_resource import DuckDBResource
 
 @dg.asset
-def stg_accounts(duckdb: DuckDBResource) -> None:
+def stg_accounts(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """
     create or replace table stg_accounts as
     select
@@ -18,7 +18,7 @@ def stg_accounts(duckdb: DuckDBResource) -> None:
     
 
 @dg.asset
-def stg_locations(duckdb: DuckDBResource) -> None:
+def stg_locations(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """
     create or replace table stg_locations as
     select
@@ -39,7 +39,7 @@ def stg_locations(duckdb: DuckDBResource) -> None:
         con.execute(query)
 
 @dg.asset
-def stg_memberships(duckdb: DuckDBResource) -> None:
+def stg_memberships(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """
     create or replace table stg_memberships as
     select
@@ -60,7 +60,7 @@ def stg_memberships(duckdb: DuckDBResource) -> None:
         con.execute(query)
 
 @dg.asset
-def stg_rests(duckdb: DuckDBResource) -> None:
+def stg_rests(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """
     create or replace table stg_rests as
     select
@@ -76,7 +76,7 @@ def stg_rests(duckdb: DuckDBResource) -> None:
         con.execute(query)
 
 @dg.asset
-def stg_shifts(duckdb: DuckDBResource) -> None:
+def stg_shifts(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """
     create or replace table stg_shifts as
     select
@@ -92,7 +92,7 @@ def stg_shifts(duckdb: DuckDBResource) -> None:
         con.execute(query)
 
 @dg.asset
-def stg_user_contracts(duckdb: DuckDBResource) -> None:
+def stg_user_contracts(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """
     create or replace table stg_user_contracts as
     select

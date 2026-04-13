@@ -4,7 +4,7 @@ from billing_analytics_pipeline.resources.duckdb_resource import DuckDBResource
 @dg.asset(
     deps = ["stg_accounts"]
 )
-def dim_accounts(duckdb: DuckDBResource) -> None:
+def dim_accounts(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """
     create or replace table dim_accounts as
     select *
@@ -17,7 +17,7 @@ def dim_accounts(duckdb: DuckDBResource) -> None:
 @dg.asset(
     deps = ["stg_locations"]
 )
-def dim_locations(duckdb: DuckDBResource) -> None:
+def dim_locations(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """
     create or replace table dim_locations as
     select *
@@ -30,7 +30,7 @@ def dim_locations(duckdb: DuckDBResource) -> None:
 @dg.asset(
     deps = ["stg_memberships"]
 )
-def dim_memberships(duckdb: DuckDBResource) -> None:
+def dim_memberships(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """
     create or replace table dim_memberships as
     select *

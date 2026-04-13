@@ -4,7 +4,7 @@ from billing_analytics_pipeline.resources.duckdb_resource import DuckDBResource
 @dg.asset(
     deps = ["int_location_metrics_weekly"]
 )
-def fct_location_revenue_weekly(duckdb: DuckDBResource) -> None:
+def fct_location_revenue_weekly(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """
     create or replace table fct_location_revenue_weekly as
     with pricing_inputs as (
@@ -81,7 +81,7 @@ final as (
 @dg.asset(
     deps = ["fct_location_revenue_weekly"]
 )
-def fct_account_billing_weekly(duckdb: DuckDBResource) -> None:
+def fct_account_billing_weekly(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """
     create or replace table fct_account_billing_weekly as
     with account_weekly as (

@@ -5,7 +5,7 @@ from billing_analytics_pipeline.resources.duckdb_resource import DuckDBResource
 @dg.asset(
     deps = ["stg_shifts", "stg_rests", "stg_user_contracts"]
 )
-def int_all_schedules(duckdb: DuckDBResource) -> None:
+def int_all_schedules(context: dg.AssetExecutionContext,duckdb: DuckDBResource) -> None:
     query = """
     create or replace table int_all_schedules as
     with valid_shifts as (
@@ -53,7 +53,7 @@ valid_rests as (
 @dg.asset(
     deps = ["int_all_schedules"]
 )
-def int_employee_activity_daily(duckdb: DuckDBResource) -> None:
+def int_employee_activity_daily(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """
     create or replace table int_employee_activity_daily as
     with daily_activity as (
@@ -79,7 +79,7 @@ def int_employee_activity_daily(duckdb: DuckDBResource) -> None:
 @dg.asset(
     deps = ["int_employee_activity_daily"]
 )
-def int_employee_activity_weekly(duckdb: DuckDBResource) -> None:
+def int_employee_activity_weekly(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """
     create or replace table int_employee_activity_weekly as
     with weekly_activity as (
@@ -105,7 +105,7 @@ def int_employee_activity_weekly(duckdb: DuckDBResource) -> None:
 @dg.asset(
     deps = ["int_employee_activity_weekly", "stg_user_contracts", "stg_memberships"]
 )
-def int_billable_employees_weekly(duckdb: DuckDBResource) -> None:
+def int_billable_employees_weekly(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """
     create or replace table int_billable_employees_weekly as 
     with contract_activity as (
@@ -150,7 +150,7 @@ deduplicated as (
 @dg.asset(
     deps = ["int_billable_employees_weekly", "stg_locations"]
 )
-def int_location_metrics_weekly(duckdb: DuckDBResource) -> None:
+def int_location_metrics_weekly(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """
     create or replace table int_location_metrics_weekly as
     with location_employee_counts as (
