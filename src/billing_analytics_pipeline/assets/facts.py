@@ -2,7 +2,8 @@ import dagster as dg
 from billing_analytics_pipeline.resources.duckdb_resource import DuckDBResource
 
 @dg.asset(
-    deps = ["int_location_metrics_weekly"]
+    deps = ["int_location_metrics_weekly"],
+    description = "Applies pricing rules at the location-week level to calculate base price, additional employee costs, and total revenue."
 )
 def fct_location_revenue_weekly(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """
@@ -79,7 +80,8 @@ final as (
 
 
 @dg.asset(
-    deps = ["fct_location_revenue_weekly"]
+    deps = ["fct_location_revenue_weekly"],
+    description = "Aggregates location-level metrics to the account-week level, producing billable locations, employees, and expected revenue."
 )
 def fct_account_billing_weekly(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """

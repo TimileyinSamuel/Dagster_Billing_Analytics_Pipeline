@@ -3,7 +3,8 @@ from billing_analytics_pipeline.resources.duckdb_resource import DuckDBResource
 
 
 @dg.asset(
-    deps = ["stg_shifts", "stg_rests", "stg_user_contracts"]
+    deps = ["stg_shifts", "stg_rests", "stg_user_contracts"],
+    description = "Combines shifts and rests into a unified schedule dataset representing all qualifying employee activity events."
 )
 def int_all_schedules(context: dg.AssetExecutionContext,duckdb: DuckDBResource) -> None:
     query = """
@@ -51,7 +52,8 @@ valid_rests as (
 
 
 @dg.asset(
-    deps = ["int_all_schedules"]
+    deps = ["int_all_schedules"],
+    description = "Aggregates schedule events to one row per contract per day, creating a daily activity signal and removing duplicate events."
 )
 def int_employee_activity_daily(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """
@@ -77,7 +79,8 @@ def int_employee_activity_daily(context: dg.AssetExecutionContext, duckdb: DuckD
 
 
 @dg.asset(
-    deps = ["int_employee_activity_daily"]
+    deps = ["int_employee_activity_daily"],
+    description = "Aggregates daily activity into weekly signals, producing one row per contract per week with activity metrics."
 )
 def int_employee_activity_weekly(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """
@@ -103,7 +106,8 @@ def int_employee_activity_weekly(context: dg.AssetExecutionContext, duckdb: Duck
 
 
 @dg.asset(
-    deps = ["int_employee_activity_weekly", "stg_user_contracts", "stg_memberships"]
+    deps = ["int_employee_activity_weekly", "stg_user_contracts", "stg_memberships"],
+    description = "Converts contract-level activity into employee-level billability, ensuring one record per employee, location, and week."
 )
 def int_billable_employees_weekly(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """
@@ -148,7 +152,8 @@ deduplicated as (
 
 
 @dg.asset(
-    deps = ["int_billable_employees_weekly", "stg_locations"]
+    deps = ["int_billable_employees_weekly", "stg_locations"],
+    description = "Aggregates billable employees at the location-week level and derives location size and billable status."
 )
 def int_location_metrics_weekly(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """

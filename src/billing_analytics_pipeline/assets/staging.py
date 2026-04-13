@@ -1,7 +1,9 @@
 import dagster as dg
 from billing_analytics_pipeline.resources.duckdb_resource import DuckDBResource
 
-@dg.asset
+@dg.asset(
+        description = "Standardized account data with cleaned fields and unique account identifiers."
+)
 def stg_accounts(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """
     create or replace table stg_accounts as
@@ -17,7 +19,9 @@ def stg_accounts(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> N
         con.execute(query)
     
 
-@dg.asset
+@dg.asset(
+        description = "Cleaned location data linked to accounts, including standardized archival status and location attributes."
+)
 def stg_locations(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """
     create or replace table stg_locations as
@@ -38,7 +42,9 @@ def stg_locations(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> 
     with duckdb.get_connection() as con:
         con.execute(query)
 
-@dg.asset
+@dg.asset(
+        description = "Standardized employee membership data with account relationships and active status."
+)
 def stg_memberships(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """
     create or replace table stg_memberships as
@@ -59,7 +65,9 @@ def stg_memberships(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -
     with duckdb.get_connection() as con:
         con.execute(query)
 
-@dg.asset
+@dg.asset(
+        description = "Normalized rest period data representing non-working but billable activity events."
+)
 def stg_rests(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """
     create or replace table stg_rests as
@@ -75,7 +83,9 @@ def stg_rests(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None
     with duckdb.get_connection() as con:
         con.execute(query)
 
-@dg.asset
+@dg.asset(
+        description = "Normalized shift schedule data with validated timestamps and contract references."
+)
 def stg_shifts(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """
     create or replace table stg_shifts as
@@ -91,7 +101,9 @@ def stg_shifts(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> Non
     with duckdb.get_connection() as con:
         con.execute(query)
 
-@dg.asset
+@dg.asset(
+        description = "Cleaned contract data linking employees to locations, with standardized dates and working hours."
+)
 def stg_user_contracts(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """
     create or replace table stg_user_contracts as

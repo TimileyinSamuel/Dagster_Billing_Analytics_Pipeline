@@ -2,7 +2,8 @@ import dagster as dg
 from billing_analytics_pipeline.resources.duckdb_resource import DuckDBResource
 
 @dg.asset(
-    deps = ["stg_accounts"]
+    deps = ["stg_accounts"],
+    description = "Curated account dimension with business-ready attributes for reporting and aggregation."
 )
 def dim_accounts(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """
@@ -15,7 +16,8 @@ def dim_accounts(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> N
 
 
 @dg.asset(
-    deps = ["stg_locations"]
+    deps = ["stg_locations"],
+    description = "Location dimension enriched with account relationships, attributes, and billing-related flags."
 )
 def dim_locations(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """
@@ -28,7 +30,8 @@ def dim_locations(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> 
 
 
 @dg.asset(
-    deps = ["stg_memberships"]
+    deps = ["stg_memberships"],
+    description = "Employee dimension representing unique memberships with associated account and role information."
 )
 def dim_memberships(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
     query = """
