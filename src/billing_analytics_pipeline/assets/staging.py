@@ -1,10 +1,12 @@
 import dagster as dg
 from billing_analytics_pipeline.resources.duckdb_resource import DuckDBResource
+from billing_analytics_pipeline.utils.db_utils import get_row_count
+from billing_analytics_pipeline.utils.metadata_utils import row_count_metadata
 
 @dg.asset(
         description = "Standardized account data with cleaned fields and unique account identifiers."
 )
-def stg_accounts(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
+def stg_accounts(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> dg.MaterializeResult:
     query = """
     create or replace table stg_accounts as
     select
@@ -18,11 +20,18 @@ def stg_accounts(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> N
     with duckdb.get_connection() as con:
         con.execute(query)
     
+    # Get row count as materialized metadata
+        num_rows = get_row_count(con, "stg_accounts")
+    
+    return dg.MaterializeResult(
+        metadata = row_count_metadata(num_rows)
+    )
+    
 
 @dg.asset(
         description = "Cleaned location data linked to accounts, including standardized archival status and location attributes."
 )
-def stg_locations(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
+def stg_locations(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> dg.MaterializeResult:
     query = """
     create or replace table stg_locations as
     select
@@ -42,10 +51,18 @@ def stg_locations(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> 
     with duckdb.get_connection() as con:
         con.execute(query)
 
+    # Get row count as materialized metadata
+        num_rows = get_row_count(con, "stg_locations")
+    
+    return dg.MaterializeResult(
+        metadata = row_count_metadata(num_rows)
+    )
+
+
 @dg.asset(
         description = "Standardized employee membership data with account relationships and active status."
 )
-def stg_memberships(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
+def stg_memberships(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> dg.MaterializeResult:
     query = """
     create or replace table stg_memberships as
     select
@@ -65,10 +82,18 @@ def stg_memberships(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -
     with duckdb.get_connection() as con:
         con.execute(query)
 
+    # Get row count as materialized metadata
+        num_rows = get_row_count(con, "stg_memberships")
+    
+    return dg.MaterializeResult(
+        metadata = row_count_metadata(num_rows)
+    )
+
+
 @dg.asset(
         description = "Normalized rest period data representing non-working but billable activity events."
 )
-def stg_rests(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
+def stg_rests(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> dg.MaterializeResult:
     query = """
     create or replace table stg_rests as
     select
@@ -83,10 +108,18 @@ def stg_rests(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None
     with duckdb.get_connection() as con:
         con.execute(query)
 
+    # Get row count as materialized metadata
+        num_rows = get_row_count(con, "stg_rests")
+    
+    return dg.MaterializeResult(
+        metadata = row_count_metadata(num_rows)
+    )
+
+
 @dg.asset(
         description = "Normalized shift schedule data with validated timestamps and contract references."
 )
-def stg_shifts(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
+def stg_shifts(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> dg.MaterializeResult:
     query = """
     create or replace table stg_shifts as
     select
@@ -101,10 +134,18 @@ def stg_shifts(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> Non
     with duckdb.get_connection() as con:
         con.execute(query)
 
+    # Get row count as materialized metadata
+        num_rows = get_row_count(con, "stg_shifts")
+    
+    return dg.MaterializeResult(
+        metadata = row_count_metadata(num_rows)
+    )
+
+
 @dg.asset(
         description = "Cleaned contract data linking employees to locations, with standardized dates and working hours."
 )
-def stg_user_contracts(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
+def stg_user_contracts(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> dg.MaterializeResult:
     query = """
     create or replace table stg_user_contracts as
     select
@@ -141,3 +182,10 @@ def stg_user_contracts(context: dg.AssetExecutionContext, duckdb: DuckDBResource
     """
     with duckdb.get_connection() as con:
         con.execute(query)
+
+    # Get row count as materialized metadata
+        num_rows = get_row_count(con, "stg_user_contracts")
+    
+    return dg.MaterializeResult(
+        metadata = row_count_metadata(num_rows)
+    )

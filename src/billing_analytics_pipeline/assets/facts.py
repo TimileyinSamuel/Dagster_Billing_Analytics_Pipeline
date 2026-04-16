@@ -1,11 +1,13 @@
 import dagster as dg
 from billing_analytics_pipeline.resources.duckdb_resource import DuckDBResource
+from billing_analytics_pipeline.utils.db_utils import get_row_count
+from billing_analytics_pipeline.utils.metadata_utils import row_count_metadata
 
 @dg.asset(
     deps = ["int_location_metrics_weekly"],
     description = "Applies pricing rules at the location-week level to calculate base price, additional employee costs, and total revenue."
 )
-def fct_location_revenue_weekly(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
+def fct_location_revenue_weekly(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> dg.MaterializeResult:
     query = """
     create or replace table fct_location_revenue_weekly as
     with pricing_inputs as (
@@ -77,13 +79,19 @@ final as (
     """
     with duckdb.get_connection() as con:
         con.execute(query)
+        # Get row count as materialized metadata
+        num_rows = get_row_count(con, "fct_location_revenue_weekly")
+    
+    return dg.MaterializeResult(
+        metadata = row_count_metadata(num_rows)
+    )
 
 
 @dg.asset(
     deps = ["fct_location_revenue_weekly"],
     description = "Aggregates location-level metrics to the account-week level, producing billable locations, employees, and expected revenue."
 )
-def fct_account_billing_weekly(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
+def fct_account_billing_weekly(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> dg.MaterializeResult:
     query = """
     create or replace table fct_account_billing_weekly as
     with account_weekly as (
@@ -103,3 +111,9 @@ def fct_account_billing_weekly(context: dg.AssetExecutionContext, duckdb: DuckDB
     """
     with duckdb.get_connection() as con:
         con.execute(query)
+    # Get row count as materialized metadata
+        num_rows = get_row_count(con, "fct_account_billing_weekly")
+    
+    return dg.MaterializeResult(
+        metadata = row_count_metadata(num_rows)
+    )

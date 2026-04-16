@@ -1,12 +1,13 @@
 import dagster as dg
 from billing_analytics_pipeline.resources.duckdb_resource import DuckDBResource
-
+from billing_analytics_pipeline.utils.db_utils import get_row_count
+from billing_analytics_pipeline.utils.metadata_utils import row_count_metadata
 
 @dg.asset(
     deps = ["stg_shifts", "stg_rests", "stg_user_contracts"],
     description = "Combines shifts and rests into a unified schedule dataset representing all qualifying employee activity events."
 )
-def int_all_schedules(context: dg.AssetExecutionContext,duckdb: DuckDBResource) -> None:
+def int_all_schedules(context: dg.AssetExecutionContext,duckdb: DuckDBResource) -> dg.MaterializeResult:
     query = """
     create or replace table int_all_schedules as
     with valid_shifts as (
@@ -50,12 +51,19 @@ valid_rests as (
     with duckdb.get_connection() as con:
         con.execute(query)
 
+    # Get row count as materialized metadata
+        num_rows = get_row_count(con, "int_all_schedules")
+    
+    return dg.MaterializeResult(
+        metadata = row_count_metadata(num_rows)
+    )
+
 
 @dg.asset(
     deps = ["int_all_schedules"],
     description = "Aggregates schedule events to one row per contract per day, creating a daily activity signal and removing duplicate events."
 )
-def int_employee_activity_daily(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
+def int_employee_activity_daily(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> dg.MaterializeResult:
     query = """
     create or replace table int_employee_activity_daily as
     with daily_activity as (
@@ -77,12 +85,25 @@ def int_employee_activity_daily(context: dg.AssetExecutionContext, duckdb: DuckD
     with duckdb.get_connection() as con:
         con.execute(query)
 
+    # Get row count before and after transformation as materialized metadata
+        row_before_transformation = con.execute("select count(*) from int_all_schedules").fetchone()
+        num_rows_before_transformation = row_before_transformation[0]
+        rows_after_transformation = con.execute("select count(*) from int_employee_activity_daily").fetchone()
+        num_of_rows_after_transformation = rows_after_transformation[0]
+
+    return dg.MaterializeResult(
+        metadata = {
+            "Number_of_rows_before_transformation": dg.MetadataValue.int(num_rows_before_transformation),
+            "Number of rows_after_transformation": dg.MetadataValue.int(num_of_rows_after_transformation)
+        }
+    )
+
 
 @dg.asset(
     deps = ["int_employee_activity_daily"],
     description = "Aggregates daily activity into weekly signals, producing one row per contract per week with activity metrics."
 )
-def int_employee_activity_weekly(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
+def int_employee_activity_weekly(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> dg.MaterializeResult:
     query = """
     create or replace table int_employee_activity_weekly as
     with weekly_activity as (
@@ -104,12 +125,25 @@ def int_employee_activity_weekly(context: dg.AssetExecutionContext, duckdb: Duck
     with duckdb.get_connection() as con:
         con.execute(query)
 
+    # Get row count before and after transformation as as materialized metadata
+        row_before_transformation = con.execute("select count(*) from int_employee_activity_daily").fetchone()
+        num_rows_before_transformation = row_before_transformation[0]
+        rows_after_transformation = con.execute("select count(*) from int_employee_activity_weekly").fetchone()
+        num_of_rows_after_transformation = rows_after_transformation[0]
+
+    return dg.MaterializeResult(
+        metadata = {
+            "Number_of_rows_before_transformation": dg.MetadataValue.int(num_rows_before_transformation),
+            "Number of rows_after_transformation": dg.MetadataValue.int(num_of_rows_after_transformation)
+        }
+    )
+
 
 @dg.asset(
     deps = ["int_employee_activity_weekly", "stg_user_contracts", "stg_memberships"],
     description = "Converts contract-level activity into employee-level billability, ensuring one record per employee, location, and week."
 )
-def int_billable_employees_weekly(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
+def int_billable_employees_weekly(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> dg.MaterializeResult:
     query = """
     create or replace table int_billable_employees_weekly as 
     with contract_activity as (
@@ -150,12 +184,19 @@ deduplicated as (
     with duckdb.get_connection() as con:
         con.execute(query)
 
+    # Get row count as materialized metadata
+        num_rows = get_row_count(con, "int_billable_employees_weekly")
+    
+    return dg.MaterializeResult(
+        metadata = row_count_metadata(num_rows)
+    )
+
 
 @dg.asset(
     deps = ["int_billable_employees_weekly", "stg_locations"],
     description = "Aggregates billable employees at the location-week level and derives location size and billable status."
 )
-def int_location_metrics_weekly(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> None:
+def int_location_metrics_weekly(context: dg.AssetExecutionContext, duckdb: DuckDBResource) -> dg.MaterializeResult:
     query = """
     create or replace table int_location_metrics_weekly as
     with location_employee_counts as (
@@ -199,3 +240,10 @@ location_enriched as (
     """
     with duckdb.get_connection() as con:
         con.execute(query) 
+
+    # Get row count as materialized metadata
+        num_rows = get_row_count(con, "int_location_metrics_weekly")
+    
+    return dg.MaterializeResult(
+        metadata = row_count_metadata(num_rows)
+    )
