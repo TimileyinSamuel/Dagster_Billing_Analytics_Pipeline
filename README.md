@@ -107,17 +107,26 @@ billing_analytics_pipeline/
 ├── data/
 │   ├── raw/
 │   └── warehouse.duckdb
-├── src/billing_analytics_pipeline/
-│   ├── assets/
-│   │   ├── staging.py
-│   │   ├── intermediate.py
-│   │   ├── dimensions.py
-│   │   ├── facts.py
-│   ├── resources/
-│   │   ├── duckdb_resource.py
-│   │   ├── duckdb_io_manager.py
-│   ├── definitions.py
+├── src/
+│   └── billing_analytics_pipeline/
+│       ├── assets/
+│       │   ├── staging.py
+│       │   ├── intermediate.py
+│       │   ├── dimensions.py
+│       │   ├── facts.py
+│       ├── resources/
+│       │   ├── duckdb_resource.py
+│       │   ├── duckdb_io_manager.py
+│       ├── utils/
+│       │   ├── db_utils.py
+│       │   ├── metadata_utils.py
+│       └── definitions.py
 ├── tests/
+│   ├── conftest.py
+│   ├── test_staging.py
+│   ├── test_dimensions.py
+│   ├── test_intermediate.py
+│   ├── test_facts.py
 ├── load_raw_csvs.py
 ```
 
