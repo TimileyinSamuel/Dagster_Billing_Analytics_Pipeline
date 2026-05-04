@@ -246,6 +246,48 @@ These checks ensure:
 
 ---
 
+
+## 🧪 Automated Data Quality Testing (Pytest)
+
+In addition to in-pipeline validation, this project implements a dedicated **data quality testing layer using Pytest**.
+
+These tests run directly against the DuckDB warehouse and ensure that all transformed datasets meet expected quality and business rules.
+
+### What is tested
+
+The test suite validates multiple aspects of the data across all layers:
+
+#### 1. Table Integrity
+- Tables are successfully created
+- Tables are not empty after materialization
+
+#### 2. Column-Level Quality Checks
+- Critical fields (e.g., `account_id`) contain no null values
+- Primary keys are unique where expected
+
+#### 3. Referential Integrity
+- Foreign key relationships are enforced:
+  - `dim_locations.account_id` must exist in `dim_accounts`
+  - `dim_memberships.account_id` must exist in `dim_accounts`
+
+#### 4. Cross-Layer Consistency
+- Intermediate and fact tables are validated for consistency
+- Aggregations are checked to prevent over-counting or data loss
+
+---
+
+### Test Structure
+
+```bash
+tests/
+├── conftest.py
+├── test_staging.py
+├── test_dimensions.py
+├── test_intermediate.py
+├── test_facts.py
+```
+
+
 ## 📊 Final Output
 
 ### `fct_account_billing_weekly`
