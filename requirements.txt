@@ -1,0 +1,6 @@
+dagster
+dagster-webserver
+dagster-duckdb
+dagster-duckdb-pandas
+duckdb
+pandas
