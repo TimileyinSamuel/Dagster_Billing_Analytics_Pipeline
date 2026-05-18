@@ -1,4 +1,4 @@
-# 📊 Billing Analytics Pipeline (Dagster + Python)
+# 📊 Billing Analytics Pipeline (Dagster + Python + Docker)
 
 ## 📌 Overview
 
@@ -7,9 +7,11 @@ This project implements a production-style analytics pipeline to compute billing
 The pipeline ingests raw operational data (accounts, locations, employees, contracts, shifts, and rests) and transforms it into **accurate, auditable weekly billing metrics**.
 
 It is designed to reflect modern data platform practices using:
+
 - **Dagster** for orchestration
 - **Python-based transformations**
 - **DuckDB** as the analytical engine
+- **Docker** for containerized and reproducible execution
 
 ---
 
@@ -94,9 +96,33 @@ This pipeline answers:
 ### Tech Stack
 
 - **Dagster** → orchestration  
-- **Python** → transformation logic  
+- **Python + SQL** → transformation and business logic  
 - **DuckDB** → data warehouse  
-- **CSV files** → raw data sources  
+- **Docker** → containerized runtime environment  
+- **CSV files** → raw data sources   
+
+
+## 🐳 Containerization with Docker
+
+This project is containerized with Docker to provide a reproducible execution environment for the Dagster pipeline.
+
+Docker packages the application code, Python dependencies, DuckDB setup, and Dagster orchestration configuration into a portable runtime environment.
+
+### Why Docker Was Used
+
+Docker was introduced to:
+
+- Ensure consistent environments across machines
+- Reduce local setup issues
+- Simplify collaboration and onboarding
+- Make the project easier to reproduce
+- Provide a deployment-ready execution environment
+
+This helps eliminate common environment inconsistencies such as:
+
+- mismatched Python versions
+- missing dependencies
+- local configuration differences
 
 ---
 
@@ -104,6 +130,10 @@ This pipeline answers:
 
 ```bash
 billing_analytics_pipeline/
+├── Dockerfile
+├── .dockerignore
+├── requirements.txt
+├── pyproject.toml
 ├── data/
 │   ├── raw/
 │   └── warehouse.duckdb
@@ -114,6 +144,10 @@ billing_analytics_pipeline/
 │       │   ├── intermediate.py
 │       │   ├── dimensions.py
 │       │   ├── facts.py
+│       ├── jobs/
+│       │   ├── jobs.py
+│       ├── schedules/
+│       │   ├── schedules.py
 │       ├── resources/
 │       │   ├── duckdb_resource.py
 │       │   ├── duckdb_io_manager.py
@@ -128,6 +162,7 @@ billing_analytics_pipeline/
 │   ├── test_intermediate.py
 │   ├── test_facts.py
 ├── load_raw_csvs.py
+├── check_duckdb.py
 ```
 
 ## 🔄 Data Modeling Approach
@@ -316,13 +351,39 @@ This dataset is ready for:
 
 ## 🚀 How to Run the Project
 
+### Option 1: Run Locally
+
 ```bash
+# Create virtual environment
+python3 -m venv .venv
+
+# Activate virtual environment
+source .venv/bin/activate
+
 # Install dependencies
 pip install -r requirements.txt
 
-# Load raw data into DuckDB
+# Load raw CSV files into DuckDB
 python load_raw_csvs.py
 
 # Start Dagster
 dagster dev
+```
+
+---
+
+### Option 2: Run with Docker
+
+```bash
+# Build Docker image
+docker build -t billing-pipeline .
+
+# Run Docker container
+docker run -p 3000:3000 billing-pipeline
+```
+
+Then open the Dagster UI:
+
+```text
+http://localhost:3000
 ```
